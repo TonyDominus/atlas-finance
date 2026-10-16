@@ -16,12 +16,17 @@ export interface AccountCard {
     opening_balance?: string;
     opening_balance_on?: string;
     is_liquid?: boolean;
+    bucket?: string;
+    bucket_label?: string;
 }
 
 export interface CurrencySnapshot {
     currency: string;
     liquidity: string;
+    parked: string;
+    investment_cash: string;
     invested: string;
+    investments_total: string;
     net_worth: string;
     income_month: string;
     expense_month: string;
@@ -30,6 +35,50 @@ export interface CurrencySnapshot {
     income_change_percent: number | null;
     expense_change_percent: number | null;
     comparison_available: boolean;
+    liquidity_minor?: number;
+    parked_minor?: number;
+    investments_total_minor?: number;
+    loans_net?: string;
+    loans_net_minor?: number;
+    net_worth_minor?: number;
+}
+
+export interface Position {
+    instrument_id: number;
+    symbol: string;
+    name: string;
+    kind_label: string;
+    account_id: number;
+    account: string;
+    currency: string;
+    quantity: string;
+    quantity_units: number;
+    cost: string;
+    cost_minor: number;
+    average_price: string;
+    price: string | null;
+    priced_on: string | null;
+    price_source: string | null;
+    value: string | null;
+    value_minor: number | null;
+    unrealized: string | null;
+    unrealized_minor: number | null;
+    unrealized_percent: number | null;
+}
+
+export interface InvestmentTotals {
+    currency: string;
+    cost: string;
+    ledger: string;
+    unassigned: string;
+    unassigned_minor: number;
+    priced_count: number;
+    unpriced_count: number;
+    value: string;
+    unrealized: string;
+    unrealized_minor: number;
+    realized: string;
+    realized_minor: number;
 }
 
 export interface MovementSummary {
@@ -60,6 +109,7 @@ export interface MovementDetail extends MovementSummary {
     tags: string[];
     can_edit: boolean;
     can_void: boolean;
+    is_trade?: boolean;
     lines: { account: string; side: string; amount: string }[];
     attachments: { id: number; name: string }[];
     related: { id: number; description: string; voided: boolean }[];

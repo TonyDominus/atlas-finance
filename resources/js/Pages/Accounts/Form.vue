@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
+import SelectField from '@/Components/SelectField.vue';
 import { Option } from '@/types/finance';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -11,6 +12,7 @@ const props = defineProps<{
         name: string;
         institution: string | null;
         type: string;
+        wealth_bucket: string;
         currency: string;
         color: string;
         icon: string;
@@ -21,6 +23,8 @@ const props = defineProps<{
         opening_balance_on: string;
     } | null;
     types: Option[];
+    buckets: Option[];
+    defaultBuckets: Record<string, string>;
     statuses: Option[];
     currencies: string[];
     icons: Option[];
@@ -29,10 +33,22 @@ const props = defineProps<{
 
 const editing = computed(() => props.account !== null);
 
+const bucketOptions = computed(() => [
+    { value: '', label: `In base alla tipologia: ${props.defaultBuckets[form.type] ?? ''}` },
+    ...props.buckets,
+]);
+
+const bucketHint = computed(() => {
+    const chosen = form.wealth_bucket || props.buckets.find((bucket) => bucket.label === props.defaultBuckets[form.type])?.value;
+
+    return props.buckets.find((bucket) => bucket.value === chosen)?.hint ?? '';
+});
+
 const form = useForm({
     name: props.account?.name ?? '',
     institution: props.account?.institution ?? '',
     type: props.account?.type ?? 'checking',
+    wealth_bucket: props.account?.wealth_bucket ?? '',
     currency: props.account?.currency ?? 'EUR',
     opening_balance: '0,00',
     opening_balance_on: props.today,
@@ -81,17 +97,20 @@ function submit(): void {
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="label" for="type">Tipologia</label>
-                    <select id="type" v-model="form.type" class="field">
-                        <option v-for="type in types" :key="type.value" :value="type.value">{{ type.label }}</option>
-                    </select>
+                    <SelectField id="type" v-model="form.type" :options="types" />
                 </div>
                 <div>
                     <label class="label" for="currency">Valuta</label>
-                    <select id="currency" v-model="form.currency" class="field" :disabled="editing">
-                        <option v-for="currency in currencies" :key="currency" :value="currency">{{ currency }}</option>
-                    </select>
+                    <SelectField id="currency" v-model="form.currency" :disabled="editing" :options="currencies.map((currency) => ({ value: currency, label: currency }))" />
                     <p v-if="editing" class="mt-1 text-xs text-stone-500">La valuta resta quella dell'apertura.</p>
                 </div>
+            </div>
+
+            <div>
+                <label class="label" for="wealth_bucket">Sezione del patrimonio</label>
+                <SelectField id="wealth_bucket" v-model="form.wealth_bucket" :options="bucketOptions" />
+                <p class="mt-1 text-xs text-stone-500">{{ bucketHint }}</p>
+                <InputError class="mt-2" :message="form.errors.wealth_bucket" />
             </div>
 
             <div v-if="!editing" class="grid gap-4 sm:grid-cols-2">
@@ -115,9 +134,7 @@ function submit(): void {
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
                     <label class="label" for="icon">Icona</label>
-                    <select id="icon" v-model="form.icon" class="field">
-                        <option v-for="icon in icons" :key="icon.value" :value="icon.value">{{ icon.label }}</option>
-                    </select>
+                    <SelectField id="icon" v-model="form.icon" :options="icons" />
                 </div>
                 <div>
                     <label class="label" for="color">Colore</label>
@@ -125,9 +142,7 @@ function submit(): void {
                 </div>
                 <div v-if="editing">
                     <label class="label" for="status">Stato</label>
-                    <select id="status" v-model="form.status" class="field">
-                        <option v-for="status in statuses" :key="status.value" :value="status.value">{{ status.label }}</option>
-                    </select>
+                    <SelectField id="status" v-model="form.status" :options="statuses" />
                 </div>
             </div>
 

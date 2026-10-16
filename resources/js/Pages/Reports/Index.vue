@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FinanceChart from '@/Components/FinanceChart.vue';
+import SelectField from '@/Components/SelectField.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { formatDate } from '@/utils/date';
 import { AccountOption, CategoryOption, CounterpartyOption, Option } from '@/types/finance';
@@ -64,27 +65,17 @@ function apply(): void {
         <form class="panel mb-6 grid gap-3 p-4 md:grid-cols-3 xl:grid-cols-6" @submit.prevent="apply">
             <input v-model="filters.from" type="date" class="field" />
             <input v-model="filters.to" type="date" class="field" />
-            <select v-model="filters.account_id" class="field">
-                <option value="">Tutti i conti</option>
-                <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-            </select>
-            <select v-model="filters.category_id" class="field">
-                <option value="">Tutte le categorie</option>
-                <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
-            </select>
-            <select v-model="filters.counterparty_id" class="field">
-                <option value="">Tutte le controparti</option>
-                <option v-for="person in counterparties" :key="person.id" :value="person.id">{{ person.name }}</option>
-            </select>
-            <select v-model="filters.type" class="field">
-                <option value="">Tutti i tipi di reddito e spesa</option>
-                <option v-for="type in types" :key="type.value" :value="type.value">{{ type.label }}</option>
-            </select>
-            <select v-model="filters.status" class="field">
-                <option value="">Contabilizzati</option>
-                <option value="posted">Contabilizzati</option>
-                <option value="forecast">Solo previsioni</option>
-            </select>
+            <SelectField v-model="filters.account_id" :options="[{ value: '', label: 'Tutti i conti' }, ...accounts.map((account) => ({ value: account.id, label: account.name }))]" />
+            <SelectField v-model="filters.category_id" :options="[{ value: '', label: 'Tutte le categorie' }, ...categories.map((category) => ({ value: category.id, label: category.name }))]" />
+            <SelectField v-model="filters.counterparty_id" :options="[{ value: '', label: 'Tutte le controparti' }, ...counterparties.map((person) => ({ value: person.id, label: person.name }))]" />
+            <SelectField v-model="filters.type" :options="[{ value: '', label: 'Tutti i tipi di reddito e spesa' }, ...types]" />
+            <SelectField
+                v-model="filters.status"
+                :options="[
+                    { value: '', label: 'Contabilizzati' },
+                    { value: 'forecast', label: 'Solo previsioni' },
+                ]"
+            />
             <button class="btn-primary">Filtra</button>
         </form>
 

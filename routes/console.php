@@ -15,3 +15,8 @@ Schedule::command('atlas:ledger-check')
 Schedule::command('atlas:project-recurrences')
     ->dailyAt('04:00')
     ->withoutOverlapping();
+
+Schedule::command('atlas:fetch-quotes')
+    ->weekdays()
+    ->at('23:15')
+    ->withoutOverlapping();

@@ -21,8 +21,10 @@
 | Entrata | Conto finanziario | Entrate, oppure interessi se la categoria è Interessi | Aumenta |
 | Rimborso di un acquisto | Conto finanziario | Spese | Aumenta, senza contare come ricavo |
 | Trasferimento | Conto destinazione | Conto origine | Invariato |
-| Acquisto investimento | Investimenti | Conto finanziario | Invariato |
-| Vendita investimento | Conto finanziario | Investimenti | Invariato, se non supera il registrato |
+| Acquisto titolo | Investimenti, al controvalore | Conto di regolamento | Invariato |
+| Vendita titolo | Conto di regolamento, al ricavo | Investimenti, al costo medio delle quote vendute | Varia del risultato |
+| Plusvalenza realizzata | — | Risultati da investimenti | Aumenta |
+| Minusvalenza realizzata | Risultati da investimenti | — | Diminuisce |
 | Rettifica in aumento | Conto finanziario | Rettifiche | Aumenta |
 | Storno | Righe invertite | Righe invertite | Annulla l'effetto |
 
@@ -30,11 +32,34 @@ Un trasferimento non passa dai conti di entrata o di spesa. La commissione colle
 
 Gli annullati e i loro storni restano nel libro, quindi i saldi tornano in pari, ma escono dai totali di entrate e spese.
 
-La liquidità somma i conti correnti, di risparmio, carta, wallet e contanti inclusi nel patrimonio e non archiviati. I conti investimento restano nel patrimonio, non nella liquidità. Gli strumenti comprati stanno nel conto di sistema Investimenti.
+## Sezioni del patrimonio
+
+Ogni conto sta in una sezione: Liquidità, Fermi o Investimenti. Se `accounts.wealth_bucket` è vuoto vale la tipologia: corrente, carta, wallet e contanti sono liquidità; risparmio e altro sono fermi; investimento è investimenti. Si può scegliere a mano dal form del conto.
+
+Solo la liquidità entra nella cassa, nella previsione e nella serie di liquidità dei grafici. Fermi e investimenti restano nel patrimonio netto. I conti esclusi dal patrimonio o archiviati non contano.
+
+## Titoli
+
+`instruments` descrive il titolo (simbolo, ISIN, tipo, valuta, borsa, simbolo per il fornitore). `security_trades` lega ogni acquisto o vendita alla sua scrittura. Quantità e prezzi sono interi con 6 decimali impliciti; i calcoli usano bcmath con arrotondamento a metà verso l'alto.
+
+- La posizione si ricostruisce dalle operazioni attive, con il costo medio ponderato.
+- La commissione è una scrittura separata su Commissioni bancarie, collegata con `related_entry_id`. Non entra nel costo del titolo.
+- Non si vende più di quanto si ha. Le operazioni di una posizione vanno in ordine di data e si annulla solo l'ultima, dalla pagina Investimenti. L'annullo generico dei movimenti rifiuta le scritture dei titoli.
+- La valuta del titolo deve essere quella del conto di regolamento: non c'è cambio.
+- Il risultato realizzato va sul conto di patrimonio Risultati da investimenti, fuori da entrate e spese del mese.
+- La parte del conto Investimenti non attribuita a un titolo (movimenti generici di investimento) resta visibile come «non assegnato».
+
+## Quotazioni
+
+`instrument_prices` tiene un prezzo per titolo, giorno e fonte. Le fonti sono `manual` e `alphavantage`. Si mostra un prezzo per giorno: se due fonti differiscono, vale l'ultimo salvato. Il valore stimato usa l'ultimo prezzo; un titolo senza prezzo è contato al costo e lo si dice.
+
+Alpha Vantage (GLOBAL_QUOTE e TIME_SERIES_DAILY) si attiva con `ALPHAVANTAGE_KEY` nel `.env`. Senza chiave non parte nessuna chiamata. `atlas:fetch-quotes` gira nei giorni feriali alle 23:15 e senza chiave non fa nulla. I dati non sono in tempo reale.
 
 ## Schema principale
 
-`users`, `institutions`, `accounts`, `ledger_accounts`, `journal_entries`, `journal_lines`, `categories`, `category_rules`, `counterparties`, `tags`, `reconciliation_records`, `attachments`.
+`users`, `institutions`, `accounts`, `ledger_accounts`, `journal_entries`, `journal_lines`, `categories`, `category_rules`, `counterparties`, `tags`, `reconciliation_records`, `attachments`, `recurring_rules`, `recurring_occurrences`, `budgets`, `loans`, `loan_disbursements`, `loan_repayments`, `loan_allocations`, `instruments`, `security_trades`, `instrument_prices`.
+
+Le righe contabili e i prestiti impediscono di cancellare i conti a cui puntano. La cancellazione dell'utente passa da `DeleteUser`, che rimuove prima prestiti e scritture e poi il resto, in una transazione.
 
 Le regole di classificazione confrontano descrizione o controparte. «Netflix» propone Abbonamenti. La categoria scelta a mano ha la precedenza. Si può correggere dopo, senza riscrivere gli importi.
 
@@ -48,12 +73,15 @@ La logica sta in azioni e servizi, non nei controller:
 - `CreateAccount`, `UpdateAccount`, `ReconcileAccount`
 - `RecordMovement`, `UpdateMovementDetails`, `VoidMovement`
 - `JournalPoster`, `BalanceReader`, `PortfolioReader`
+- `LoanBook`, `CashFlowForecast`, `AnalyticsReader`
+- `TradeBook`, `SaveInstrument`, `RecordPrice`, `PositionReader`, `AlphaVantageQuotes`
+- `DeleteUser`
 - `FinanceAssistant` per saldo, conti, spesa, entrata, trasferimento e report
 
 Un bot futuro chiama `FinanceAssistant`. Se il nome del conto non è univoco, il servizio rifiuta l'operazione invece di indovinare.
 
-## Non ancora nel ledger
+## Non ancora operativi
 
-Prestiti, ricorrenze, budget, previsioni, import CSV e collegamenti bancari hanno il posto nel modello (conti prestiti, stato `forecast`, origine `csv`) ma non sono ancora operativi. Vedi `docs/STATUS.md`.
+Import CSV e collegamenti bancari hanno il posto nel modello (origine `csv`, `api`) ma non sono attivi. Vedi `docs/STATUS.md`.
 
 Non ci sono credenziali di home banking, né scraping, né API bancarie dichiarate disponibili.

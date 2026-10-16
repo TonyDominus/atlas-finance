@@ -25,11 +25,12 @@ enum AccountType: string
         };
     }
 
-    public function isLiquid(): bool
+    public function defaultBucket(): WealthBucket
     {
         return match ($this) {
-            self::Checking, self::Savings, self::Card, self::Cash, self::Wallet => true,
-            self::Investment, self::Other => false,
+            self::Checking, self::Card, self::Cash, self::Wallet => WealthBucket::Liquid,
+            self::Savings, self::Other => WealthBucket::Parked,
+            self::Investment => WealthBucket::Invested,
         };
     }
 

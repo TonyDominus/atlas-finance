@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import InputError from '@/Components/InputError.vue';
 import { AccountOption, CategoryOption, CounterpartyOption, Option } from '@/types/finance';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -99,33 +100,32 @@ function submit(): void {
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="label" for="kind">Tipo</label>
-                    <select id="kind" v-model="form.kind" class="field">
-                        <option v-for="kind in kinds" :key="kind.value" :value="kind.value">{{ kind.label }}</option>
-                    </select>
+                    <SelectField id="kind" v-model="form.kind" :options="kinds" />
                 </div>
                 <div>
                     <label class="label" for="account_id">Conto</label>
-                    <select id="account_id" v-model="form.account_id" class="field" required>
-                        <option value="">Seleziona</option>
-                        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-                    </select>
+                    <SelectField
+                        id="account_id"
+                        v-model="form.account_id"
+                        required
+                        :options="[{ value: '', label: 'Seleziona' }, ...accounts.map((account) => ({ value: account.id, label: account.name }))]"
+                    />
                     <InputError class="mt-2" :message="form.errors.account_id" />
                 </div>
             </div>
             <div v-if="form.kind === 'transfer'">
                 <label class="label" for="destination_account_id">Destinazione</label>
-                <select id="destination_account_id" v-model="form.destination_account_id" class="field">
-                    <option value="">Seleziona</option>
-                    <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-                </select>
+                <SelectField
+                    id="destination_account_id"
+                    v-model="form.destination_account_id"
+                    :options="[{ value: '', label: 'Seleziona' }, ...accounts.map((account) => ({ value: account.id, label: account.name }))]"
+                />
                 <InputError class="mt-2" :message="form.errors.destination_account_id" />
             </div>
             <div class="grid gap-4 sm:grid-cols-3">
                 <div>
                     <label class="label" for="frequency">Frequenza</label>
-                    <select id="frequency" v-model="form.frequency" class="field">
-                        <option v-for="frequency in frequencies" :key="frequency.value" :value="frequency.value">{{ frequency.label }}</option>
-                    </select>
+                    <SelectField id="frequency" v-model="form.frequency" :options="frequencies" />
                 </div>
                 <div>
                     <label class="label" for="interval">Ogni</label>
@@ -133,11 +133,15 @@ function submit(): void {
                 </div>
                 <div v-if="form.frequency === 'custom'">
                     <label class="label" for="interval_unit">Unità</label>
-                    <select id="interval_unit" v-model="form.interval_unit" class="field">
-                        <option value="day">Giorni</option>
-                        <option value="week">Settimane</option>
-                        <option value="month">Mesi</option>
-                    </select>
+                    <SelectField
+                        id="interval_unit"
+                        v-model="form.interval_unit"
+                        :options="[
+                            { value: 'day', label: 'Giorni' },
+                            { value: 'week', label: 'Settimane' },
+                            { value: 'month', label: 'Mesi' },
+                        ]"
+                    />
                 </div>
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
@@ -153,17 +157,19 @@ function submit(): void {
             <div class="grid gap-4 sm:grid-cols-2">
                 <div v-if="form.kind !== 'transfer'">
                     <label class="label" for="category_id">Categoria</label>
-                    <select id="category_id" v-model="form.category_id" class="field">
-                        <option value="">Nessuna</option>
-                        <option v-for="category in visibleCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
-                    </select>
+                    <SelectField
+                        id="category_id"
+                        v-model="form.category_id"
+                        :options="[{ value: '', label: 'Nessuna' }, ...visibleCategories.map((category) => ({ value: category.id, label: category.name }))]"
+                    />
                 </div>
                 <div>
                     <label class="label" for="counterparty_id">Controparte</label>
-                    <select id="counterparty_id" v-model="form.counterparty_id" class="field">
-                        <option value="">Nessuna</option>
-                        <option v-for="person in counterparties" :key="person.id" :value="person.id">{{ person.name }}</option>
-                    </select>
+                    <SelectField
+                        id="counterparty_id"
+                        v-model="form.counterparty_id"
+                        :options="[{ value: '', label: 'Nessuna' }, ...counterparties.map((person) => ({ value: person.id, label: person.name }))]"
+                    />
                 </div>
             </div>
             <div class="grid gap-4 sm:grid-cols-2">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AccountGlyph from '@/Components/AccountGlyph.vue';
+import SelectField from '@/Components/SelectField.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import InputError from '@/Components/InputError.vue';
@@ -146,12 +147,15 @@ function saveFee(): void {
                     <form class="mt-4 space-y-3" @submit.prevent="saveFee">
                         <input v-model="fee.description" class="field" required />
                         <input v-model="fee.amount" class="field" placeholder="2,90" required />
-                        <select v-model="fee.frequency" class="field">
-                            <option value="monthly">Mensile</option>
-                            <option value="quarterly">Trimestrale</option>
-                            <option value="semiannual">Semestrale</option>
-                            <option value="yearly">Annuale</option>
-                        </select>
+                        <SelectField
+                            v-model="fee.frequency"
+                            :options="[
+                                { value: 'monthly', label: 'Mensile' },
+                                { value: 'quarterly', label: 'Trimestrale' },
+                                { value: 'semiannual', label: 'Semestrale' },
+                                { value: 'yearly', label: 'Annuale' },
+                            ]"
+                        />
                         <input v-model="fee.starts_on" type="date" class="field" required />
                         <InputError :message="fee.errors.amount || fee.errors.description" />
                         <button class="btn-secondary" :disabled="fee.processing">Aggiungi canone</button>

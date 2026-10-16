@@ -8,6 +8,7 @@ use App\Actions\Books\ProvisionUserBooks;
 use App\Domain\Money\Money;
 use App\Enums\AccountStatus;
 use App\Enums\LedgerAccountType;
+use App\Enums\WealthBucket;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\User;
@@ -49,7 +50,7 @@ final class PortfolioReader
         $byCurrency = [];
 
         foreach ($currencies as $currency) {
-            $liquidity = 0;
+            $buckets = [WealthBucket::Liquid->value => 0, WealthBucket::Parked->value => 0, WealthBucket::Invested->value => 0];
             $includedAccounts = 0;
 
             foreach ($accounts as $account) {
@@ -59,11 +60,12 @@ final class PortfolioReader
 
                 $minor = $balanceMap[$account->id] ?? 0;
                 $includedAccounts += $minor;
-
-                if ($account->type->isLiquid()) {
-                    $liquidity += $minor;
-                }
+                $buckets[$account->bucket()->value] += $minor;
             }
+
+            $liquidity = $buckets[WealthBucket::Liquid->value];
+            $parked = $buckets[WealthBucket::Parked->value];
+            $investmentCash = $buckets[WealthBucket::Invested->value];
 
             $invested = $this->systemMinor($user, 'investments', $currency);
             $receivable = $this->systemMinor($user, 'loans_receivable', $currency);
@@ -84,8 +86,16 @@ final class PortfolioReader
                 'currency' => $currency,
                 'liquidity_minor' => $liquidity,
                 'liquidity' => $this->format($liquidity, $currency),
+                'parked_minor' => $parked,
+                'parked' => $this->format($parked, $currency),
+                'investment_cash_minor' => $investmentCash,
+                'investment_cash' => $this->format($investmentCash, $currency),
                 'invested_minor' => $invested,
                 'invested' => $this->format($invested, $currency),
+                'investments_total_minor' => $invested + $investmentCash,
+                'investments_total' => $this->format($invested + $investmentCash, $currency),
+                'loans_net_minor' => $receivable - $payable,
+                'loans_net' => $this->format($receivable - $payable, $currency),
                 'net_worth_minor' => $netWorth,
                 'net_worth' => $this->format($netWorth, $currency),
                 'income_month_minor' => $monthIncome,
@@ -119,7 +129,9 @@ final class PortfolioReader
                     'status' => $account->status->value,
                     'status_label' => $account->status->label(),
                     'include_in_net_worth' => $account->include_in_net_worth,
-                    'is_liquid' => $account->type->isLiquid(),
+                    'is_liquid' => $account->isLiquid(),
+                    'bucket' => $account->bucket()->value,
+                    'bucket_label' => $account->bucket()->label(),
                     'balance_minor' => $minor,
                     'balance' => $this->format($minor, $account->currency),
                     'opening_balance' => $this->format($account->opening_balance_minor, $account->currency),

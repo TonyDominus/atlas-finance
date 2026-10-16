@@ -8,6 +8,7 @@ use App\Enums\JournalEntryStatus;
 use App\Enums\OccurrenceStatus;
 use App\Models\JournalEntry;
 use App\Models\RecurringOccurrence;
+use App\Models\SecurityTrade;
 use App\Models\User;
 use App\Services\Ledger\JournalPoster;
 use Illuminate\Support\Facades\DB;
@@ -17,10 +18,16 @@ final class VoidMovement
 {
     public function __construct(private JournalPoster $poster) {}
 
-    public function handle(User $user, JournalEntry $entry, string $reason): void
+    public function handle(User $user, JournalEntry $entry, string $reason, bool $fromTrade = false): void
     {
         if ($entry->user_id !== $user->id) {
             throw ValidationException::withMessages(['reason' => 'Movimento non disponibile.']);
+        }
+
+        if (! $fromTrade && SecurityTrade::query()->where('journal_entry_id', $entry->id)->exists()) {
+            throw ValidationException::withMessages([
+                'reason' => 'È un\'operazione su titoli: annullala dalla pagina Investimenti, così quantità e costo medio restano coerenti.',
+            ]);
         }
 
         DB::transaction(function () use ($user, $entry, $reason) {

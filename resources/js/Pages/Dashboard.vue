@@ -48,22 +48,29 @@ function tone(direction: MovementSummary['direction']): string {
 
         <div v-else class="space-y-6">
             <section v-for="row in snapshot.by_currency" :key="row.currency" class="space-y-4">
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    <article class="panel p-5">
+                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <Link :href="route('wealth.index')" class="panel block p-5 transition hover:border-teal-700/40">
                         <p class="text-xs uppercase tracking-wider text-stone-500">Liquidità</p>
                         <p class="mt-2 font-display text-3xl tabular-nums">{{ row.liquidity }}</p>
-                        <p class="mt-2 text-xs text-stone-500">Conti correnti, carte, wallet e contanti inclusi nel patrimonio.</p>
-                    </article>
+                        <p class="mt-2 text-xs text-stone-500">Spendibile subito. È la base della previsione di cassa.</p>
+                    </Link>
+                    <Link :href="route('wealth.index')" class="panel block p-5 transition hover:border-teal-700/40">
+                        <p class="text-xs uppercase tracking-wider text-stone-500">Fermi</p>
+                        <p class="mt-2 font-display text-3xl tabular-nums">{{ row.parked }}</p>
+                        <p class="mt-2 text-xs text-stone-500">Risparmi e depositi accantonati, fuori dalla cassa quotidiana.</p>
+                    </Link>
+                    <Link :href="route('investments.index')" class="panel block p-5 transition hover:border-teal-700/40">
+                        <p class="text-xs uppercase tracking-wider text-stone-500">Investimenti</p>
+                        <p class="mt-2 font-display text-3xl tabular-nums">{{ row.investments_total }}</p>
+                        <p class="mt-2 text-xs text-stone-500">Titoli al costo {{ row.invested }} · liquidità sul conto titoli {{ row.investment_cash }}.</p>
+                    </Link>
                     <article class="panel p-5">
                         <p class="text-xs uppercase tracking-wider text-stone-500">Patrimonio netto</p>
                         <p class="mt-2 font-display text-3xl tabular-nums">{{ row.net_worth }}</p>
-                        <p class="mt-2 text-xs text-stone-500">Conti inclusi, investimenti, crediti e debiti. Nessun cambio inventato.</p>
+                        <p class="mt-2 text-xs text-stone-500">Le tre sezioni più crediti e meno debiti dei prestiti. Nessun cambio inventato.</p>
                     </article>
-                    <article class="panel p-5">
-                        <p class="text-xs uppercase tracking-wider text-stone-500">Investito</p>
-                        <p class="mt-2 font-display text-3xl tabular-nums">{{ row.invested }}</p>
-                        <p class="mt-2 text-xs text-stone-500">Strumenti registrati, distinti dalla liquidità.</p>
-                    </article>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
                     <article class="panel p-5">
                         <p class="text-xs uppercase tracking-wider text-stone-500">Entrate del mese</p>
                         <p class="mt-2 text-2xl font-semibold tabular-nums text-teal-800 dark:text-teal-300">{{ row.income_month }}</p>
@@ -142,7 +149,7 @@ function tone(direction: MovementSummary['direction']): string {
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate font-medium">{{ account.name }}</p>
                                     <p class="text-xs text-stone-500">
-                                        {{ account.type_label }}
+                                        {{ account.type_label }} · {{ account.bucket_label }}
                                         <span v-if="!account.include_in_net_worth"> · escluso dal patrimonio</span>
                                     </p>
                                 </div>

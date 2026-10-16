@@ -7,6 +7,7 @@ use App\Enums\JournalEntryType;
 use App\Enums\JournalSide;
 use App\Models\JournalEntry;
 use App\Models\JournalLine;
+use App\Models\SecurityTrade;
 
 final class MovementPresenter
 {
@@ -47,6 +48,8 @@ final class MovementPresenter
      */
     public function detail(JournalEntry $entry): array
     {
+        $isTrade = SecurityTrade::query()->where('journal_entry_id', $entry->id)->exists();
+
         return [
             ...$this->summary($entry),
             'notes' => $entry->notes,
@@ -57,7 +60,10 @@ final class MovementPresenter
             'external_id' => $entry->external_id,
             'tags' => $entry->tags->pluck('name')->values()->all(),
             'can_edit' => ! $entry->isVoided() && $entry->type !== JournalEntryType::Reversal,
-            'can_void' => ! $entry->isVoided() && $entry->type !== JournalEntryType::Reversal,
+            'can_void' => ! $entry->isVoided()
+                && $entry->type !== JournalEntryType::Reversal
+                && ! $isTrade,
+            'is_trade' => $isTrade,
             'lines' => $entry->lines->map(fn (JournalLine $line) => [
                 'account' => $line->ledgerAccount->name,
                 'side' => $line->side->label(),

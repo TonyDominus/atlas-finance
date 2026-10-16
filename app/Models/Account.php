@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AccountStatus;
 use App\Enums\AccountType;
+use App\Enums\WealthBucket;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,6 +26,7 @@ class Account extends Model
         'opening_balance_on',
         'notes',
         'sync_provider',
+        'wealth_bucket',
     ];
 
     protected function casts(): array
@@ -32,6 +34,7 @@ class Account extends Model
         return [
             'type' => AccountType::class,
             'status' => AccountStatus::class,
+            'wealth_bucket' => WealthBucket::class,
             'include_in_net_worth' => 'boolean',
             'opening_balance_minor' => 'integer',
             'opening_balance_on' => 'date',
@@ -61,5 +64,15 @@ class Account extends Model
     public function isPostable(): bool
     {
         return $this->status === AccountStatus::Active;
+    }
+
+    public function bucket(): WealthBucket
+    {
+        return $this->wealth_bucket ?? $this->type->defaultBucket();
+    }
+
+    public function isLiquid(): bool
+    {
+        return $this->bucket() === WealthBucket::Liquid;
     }
 }

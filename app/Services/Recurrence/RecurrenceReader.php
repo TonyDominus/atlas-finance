@@ -71,7 +71,8 @@ final class RecurrenceReader
 
         return RecurringOccurrence::query()
             ->where('user_id', $user->id)
-            ->whereBetween('due_on', [$from, $until])
+            ->whereDate('due_on', '>=', $from)
+            ->whereDate('due_on', '<=', $until)
             ->with(['rule.account'])
             ->orderBy('due_on')
             ->orderBy('id')

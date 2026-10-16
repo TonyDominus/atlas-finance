@@ -24,6 +24,7 @@ final class ProvisionUserBooks
         'bank_fees' => [LedgerAccountType::Expense, 'Commissioni bancarie'],
         'interest_income' => [LedgerAccountType::Income, 'Interessi attivi'],
         'investments' => [LedgerAccountType::Asset, 'Investimenti'],
+        'investment_results' => [LedgerAccountType::Equity, 'Risultati da investimenti'],
         'loans_receivable' => [LedgerAccountType::Asset, 'Crediti per prestiti'],
         'loans_payable' => [LedgerAccountType::Liability, 'Debiti per prestiti'],
         'loan_adjustments' => [LedgerAccountType::Equity, 'Compensazioni prestiti'],

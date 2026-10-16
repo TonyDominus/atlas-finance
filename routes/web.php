@@ -7,12 +7,15 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CounterpartyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvestmentController;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\MarketController;
 use App\Http\Controllers\MovementController;
 use App\Http\Controllers\OccurrenceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecurrenceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\WealthController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -68,6 +71,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/budget/{budget}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
 
     Route::get('/analisi', ReportController::class)->name('reports.index');
+
+    Route::get('/patrimonio', WealthController::class)->name('wealth.index');
+
+    Route::get('/investimenti', [InvestmentController::class, 'index'])->name('investments.index');
+    Route::post('/investimenti/operazioni', [InvestmentController::class, 'store'])->name('investments.store');
+    Route::post('/investimenti/operazioni/{trade}/annulla', [InvestmentController::class, 'void'])->name('investments.void');
+
+    Route::get('/mercato', [MarketController::class, 'index'])->name('market.index');
+    Route::post('/mercato/titoli', [MarketController::class, 'store'])->name('market.store');
+    Route::put('/mercato/titoli/{instrument}', [MarketController::class, 'update'])->name('market.update');
+    Route::delete('/mercato/titoli/{instrument}', [MarketController::class, 'destroy'])->name('market.destroy');
+    Route::post('/mercato/titoli/{instrument}/prezzi', [MarketController::class, 'price'])->name('market.price');
+    Route::post('/mercato/titoli/{instrument}/storico', [MarketController::class, 'history'])->name('market.history');
+    Route::post('/mercato/aggiorna', [MarketController::class, 'refresh'])->name('market.refresh');
 
     Route::get('/controparti', [CounterpartyController::class, 'index'])->name('counterparties.index');
     Route::post('/controparti', [CounterpartyController::class, 'store'])->name('counterparties.store');

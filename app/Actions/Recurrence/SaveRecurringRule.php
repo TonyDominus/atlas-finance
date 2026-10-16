@@ -115,15 +115,15 @@ final class SaveRecurringRule
             'interval_unit' => $frequency === RecurrenceFrequency::Custom ? (string) ($input['interval_unit'] ?? 'month') : null,
             'anchor_day' => (int) substr($startsOn, 8, 2),
             'starts_on' => $startsOn,
-            'ends_on' => $input['ends_on'] ?: null,
-            'max_occurrences' => $input['max_occurrences'] !== null && $input['max_occurrences'] !== ''
+            'ends_on' => ($input['ends_on'] ?? null) ?: null,
+            'max_occurrences' => isset($input['max_occurrences']) && $input['max_occurrences'] !== null && $input['max_occurrences'] !== ''
                 ? (int) $input['max_occurrences']
                 : null,
-            'reminder_days' => $input['reminder_days'] !== null && $input['reminder_days'] !== ''
+            'reminder_days' => isset($input['reminder_days']) && $input['reminder_days'] !== null && $input['reminder_days'] !== ''
                 ? (int) $input['reminder_days']
                 : null,
             'status' => $rule->exists ? $rule->status : RecurrenceStatus::Active,
-            'notes' => $input['notes'] ?: null,
+            'notes' => ($input['notes'] ?? null) ?: null,
         ]);
     }
 

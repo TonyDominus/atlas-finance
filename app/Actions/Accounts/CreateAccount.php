@@ -71,6 +71,7 @@ final class CreateAccount
                 'institution_id' => $institutionId,
                 'name' => trim($data['name']),
                 'type' => AccountType::from($data['type']),
+                'wealth_bucket' => ($data['wealth_bucket'] ?? null) ?: null,
                 'currency' => $currency,
                 'color' => $data['color'],
                 'icon' => $data['icon'],

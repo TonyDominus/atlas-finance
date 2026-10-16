@@ -9,12 +9,14 @@ use App\Domain\Money\Currency;
 use App\Domain\Money\Money;
 use App\Enums\AccountStatus;
 use App\Enums\AccountType;
+use App\Enums\WealthBucket;
 use App\Http\Controllers\Concerns\OwnsFinancialRecords;
 use App\Http\Presenters\MovementPresenter;
 use App\Http\Requests\ReconcileAccountRequest;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
+use App\Models\JournalEntry;
 use App\Models\RecurringRule;
 use App\Services\Recurrence\OccurrenceProjector;
 use App\Services\Recurrence\RecurrenceReader;
@@ -129,6 +131,7 @@ class AccountController extends Controller
                 'name' => $account->name,
                 'institution' => $account->institution?->name,
                 'type' => $account->type->value,
+                'wealth_bucket' => $account->wealth_bucket?->value ?? '',
                 'currency' => $account->currency,
                 'color' => $account->color,
                 'icon' => $account->icon,
@@ -185,6 +188,8 @@ class AccountController extends Controller
             'institution' => $account->institution?->name,
             'type' => $account->type->value,
             'type_label' => $account->type->label(),
+            'bucket' => $account->bucket()->value,
+            'bucket_label' => $account->bucket()->label(),
             'currency' => $account->currency,
             'color' => $account->color,
             'icon' => $account->icon,
@@ -203,6 +208,10 @@ class AccountController extends Controller
     {
         return [
             'types' => AccountType::options(),
+            'buckets' => WealthBucket::options(),
+            'defaultBuckets' => collect(AccountType::cases())
+                ->mapWithKeys(fn (AccountType $type) => [$type->value => $type->defaultBucket()->label()])
+                ->all(),
             'statuses' => AccountStatus::options(),
             'currencies' => Currency::codes(),
             'icons' => [

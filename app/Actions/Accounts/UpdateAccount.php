@@ -48,6 +48,7 @@ final class UpdateAccount
                 'institution_id' => $institutionId,
                 'name' => trim($data['name']),
                 'type' => AccountType::from($data['type']),
+                'wealth_bucket' => ($data['wealth_bucket'] ?? null) ?: null,
                 'color' => $data['color'],
                 'icon' => $data['icon'],
                 'status' => AccountStatus::from($data['status']),

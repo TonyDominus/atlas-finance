@@ -51,9 +51,9 @@ final class LoanBook
                 'direction' => LoanDirection::from((string) $input['direction']),
                 'currency' => $account->currency,
                 'opened_on' => $input['opened_on'],
-                'due_on' => $input['due_on'] ?: null,
+                'due_on' => ($input['due_on'] ?? null) ?: null,
                 'description' => trim((string) $input['description']),
-                'notes' => $input['notes'] ?: null,
+                'notes' => ($input['notes'] ?? null) ?: null,
                 'agreed_interest_minor' => $interest?->amountMinor,
             ]);
 
@@ -133,7 +133,7 @@ final class LoanBook
                 'kind' => $kind,
                 'amount_minor' => $total,
                 'occurred_on' => $input['occurred_on'],
-                'notes' => $input['notes'] ?: null,
+                'notes' => ($input['notes'] ?? null) ?: null,
             ]);
 
             foreach ($rows as $row) {

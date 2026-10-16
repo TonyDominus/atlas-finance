@@ -44,4 +44,15 @@ class StoreLoanRequest extends FormRequest
             'counterparty_name.required_without' => 'Indica la persona.',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'counterparty_id' => $this->input('counterparty_id') ?: null,
+            'counterparty_name' => trim((string) $this->input('counterparty_name', '')) ?: null,
+            'due_on' => $this->input('due_on') ?: null,
+            'agreed_interest' => trim((string) $this->input('agreed_interest', '')) ?: null,
+            'notes' => $this->input('notes') ?: null,
+        ]);
+    }
 }

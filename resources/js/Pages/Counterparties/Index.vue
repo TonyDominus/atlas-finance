@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import InputError from '@/Components/InputError.vue';
 import { CounterpartyOption, Option } from '@/types/finance';
@@ -43,9 +44,7 @@ function remove(id: number): void {
                 <h2 class="font-display text-xl">Nuova</h2>
                 <input v-model="form.name" class="field" placeholder="Nome" required />
                 <InputError :message="form.errors.name" />
-                <select v-model="form.type" class="field">
-                    <option v-for="type in types" :key="type.value" :value="type.value">{{ type.label }}</option>
-                </select>
+                <SelectField v-model="form.type" :options="types" />
                 <textarea v-model="form.notes" rows="3" class="field" placeholder="Note" />
                 <button class="btn-primary" :disabled="form.processing">Aggiungi</button>
             </form>

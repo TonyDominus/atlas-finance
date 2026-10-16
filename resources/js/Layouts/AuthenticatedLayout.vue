@@ -10,7 +10,10 @@ const flash = computed(() => page.props.flash);
 
 const items = [
     { name: 'Dashboard', href: route('dashboard'), match: 'dashboard' },
+    { name: 'Patrimonio', href: route('wealth.index'), match: 'wealth.index' },
     { name: 'Conti', href: route('accounts.index'), match: 'accounts.*' },
+    { name: 'Investimenti', href: route('investments.index'), match: 'investments.*' },
+    { name: 'Mercato', href: route('market.index'), match: 'market.*' },
     { name: 'Movimenti', href: route('movements.index'), match: 'movements.*' },
     { name: 'Ricorrenze', href: route('recurrences.index'), match: 'recurrences.*' },
     { name: 'Calendario', href: route('calendar.index'), match: 'calendar.index' },
@@ -55,7 +58,7 @@ function active(match: string): boolean {
                 </Link>
             </div>
 
-            <nav class="mt-4 flex-1 space-y-1 px-3">
+            <nav class="mt-4 flex-1 space-y-1 overflow-y-auto px-3">
                 <Link
                     v-for="item in items"
                     :key="item.name"

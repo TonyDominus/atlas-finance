@@ -28,6 +28,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'alphavantage' => [
+        'key' => env('ALPHAVANTAGE_KEY'),
+        'url' => env('ALPHAVANTAGE_URL', 'https://www.alphavantage.co/query'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

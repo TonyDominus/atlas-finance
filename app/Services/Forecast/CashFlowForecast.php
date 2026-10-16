@@ -12,7 +12,6 @@ use App\Enums\OccurrenceStatus;
 use App\Enums\RecurrenceKind;
 use App\Models\Account;
 use App\Models\JournalEntry;
-use App\Models\JournalLine;
 use App\Models\RecurringOccurrence;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -47,9 +46,10 @@ final class CashFlowForecast
             ->where('user_id', $user->id)
             ->where('status', '!=', AccountStatus::Archived)
             ->where('include_in_net_worth', true)
-            ->whereIn('type', ['checking', 'savings', 'card', 'cash', 'wallet'])
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->filter(fn (Account $account) => $account->isLiquid())
+            ->values();
 
         $balances = $this->openingBalances($user->id, $accounts->pluck('id')->all());
         $events = $this->events($user, $accounts->keyBy('id'), $today->toDateString(), $end->toDateString());
@@ -202,7 +202,8 @@ final class CashFlowForecast
         $occurrences = RecurringOccurrence::query()
             ->where('user_id', $user->id)
             ->where('status', OccurrenceStatus::Forecast)
-            ->whereBetween('due_on', [$from, $until])
+            ->whereDate('due_on', '>=', $from)
+            ->whereDate('due_on', '<=', $until)
             ->with('rule')
             ->orderBy('due_on')
             ->get();
@@ -233,7 +234,8 @@ final class CashFlowForecast
             ->where('user_id', $user->id)
             ->where('status', JournalEntryStatus::Forecast)
             ->whereNull('voided_at')
-            ->whereBetween('booked_on', [$from, $until])
+            ->whereDate('booked_on', '>=', $from)
+            ->whereDate('booked_on', '<=', $until)
             ->with('lines.ledgerAccount')
             ->orderBy('booked_on')
             ->get();

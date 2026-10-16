@@ -72,15 +72,15 @@ final class OccurrenceProjector
                 ]);
             }
 
-            $stale = RecurringOccurrence::query()
+            RecurringOccurrence::query()
                 ->where('recurring_rule_id', $locked->id)
-                ->where('status', OccurrenceStatus::Forecast);
-
-            if ($dates === []) {
-                $stale->delete();
-            } else {
-                $stale->whereNotIn('due_on', $dates)->delete();
-            }
+                ->where('status', OccurrenceStatus::Forecast)
+                ->get()
+                ->each(function (RecurringOccurrence $occurrence) use ($dates) {
+                    if (! in_array($occurrence->due_on->toDateString(), $dates, true)) {
+                        $occurrence->delete();
+                    }
+                });
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\AccountStatus;
 use App\Enums\AccountType;
+use App\Enums\WealthBucket;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,6 +24,7 @@ class UpdateAccountRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'institution' => ['nullable', 'string', 'max:120'],
             'type' => ['required', Rule::enum(AccountType::class)],
+            'wealth_bucket' => ['nullable', Rule::enum(WealthBucket::class)],
             'color' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'icon' => ['required', Rule::in(['landmark', 'card', 'wallet', 'cash', 'chart', 'piggy'])],
             'status' => ['required', Rule::enum(AccountStatus::class)],

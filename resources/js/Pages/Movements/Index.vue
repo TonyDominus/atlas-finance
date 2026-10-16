@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { formatDate } from '@/utils/date';
@@ -39,25 +40,25 @@ function apply(): void {
 
         <form class="panel mb-4 grid gap-3 p-4 md:grid-cols-4" @submit.prevent="apply">
             <input v-model="filters.q" class="field" placeholder="Cerca descrizione" />
-            <select v-model="filters.type" class="field">
-                <option value="">Tutti i tipi</option>
-                <option v-for="type in types" :key="type.value" :value="type.value">{{ type.label }}</option>
-            </select>
-            <select v-model="filters.account_id" class="field">
-                <option value="">Tutti i conti</option>
-                <option v-for="account in accounts" :key="account.id" :value="String(account.id)">{{ account.name }}</option>
-            </select>
-            <select v-model="filters.voided" class="field">
-                <option value="">Tutti gli stati</option>
-                <option value="no">Contabilizzati</option>
-                <option value="yes">Annullati</option>
-            </select>
+            <SelectField v-model="filters.type" :options="[{ value: '', label: 'Tutti i tipi' }, ...types]" />
+            <SelectField
+                v-model="filters.account_id"
+                :options="[{ value: '', label: 'Tutti i conti' }, ...accounts.map((account) => ({ value: String(account.id), label: account.name }))]"
+            />
+            <SelectField
+                v-model="filters.voided"
+                :options="[
+                    { value: '', label: 'Tutti gli stati' },
+                    { value: 'no', label: 'Contabilizzati' },
+                    { value: 'yes', label: 'Annullati' },
+                ]"
+            />
             <input v-model="filters.from" type="date" class="field" />
             <input v-model="filters.to" type="date" class="field" />
-            <select v-model="filters.category_id" class="field">
-                <option value="">Tutte le categorie</option>
-                <option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option>
-            </select>
+            <SelectField
+                v-model="filters.category_id"
+                :options="[{ value: '', label: 'Tutte le categorie' }, ...categories.map((category) => ({ value: String(category.id), label: category.name }))]"
+            />
             <button class="btn-secondary">Filtra</button>
         </form>
 

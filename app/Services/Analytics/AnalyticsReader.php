@@ -186,8 +186,8 @@ final class AnalyticsReader
             ->where('status', '!=', AccountStatus::Archived)
             ->where('include_in_net_worth', true)
             ->when($accountId !== '', fn ($query) => $query->whereKey($accountId))
-            ->when($liquidOnly && $accountId === '', fn ($query) => $query->whereIn('type', ['checking', 'savings', 'card', 'cash', 'wallet']))
-            ->get();
+            ->get()
+            ->when($liquidOnly && $accountId === '', fn ($accounts) => $accounts->filter(fn (Account $account) => $account->isLiquid())->values());
 
         $lines = DB::table('journal_lines as jl')
             ->join('journal_entries as je', 'je.id', '=', 'jl.journal_entry_id')

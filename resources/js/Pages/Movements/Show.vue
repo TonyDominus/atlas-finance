@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import InputError from '@/Components/InputError.vue';
 import { formatDate } from '@/utils/date';
 import { CategoryOption, CounterpartyOption, MovementDetail } from '@/types/finance';
@@ -101,19 +102,25 @@ function postForecast(): void {
                     <h2 class="font-display text-xl">Dettagli</h2>
                     <p class="text-xs text-stone-500">Importo, conti e date non si riscrivono. Per correggerli annulla e registra di nuovo.</p>
                     <input v-model="details.description" class="field" required />
-                    <select v-if="!['transfer', 'investment_buy', 'investment_sell', 'opening_balance'].includes(movement.type)" v-model="details.category_id" class="field">
-                        <option value="">Senza categoria</option>
-                        <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
-                    </select>
-                    <select v-model="details.counterparty_id" class="field">
-                        <option value="">Nessuna controparte</option>
-                        <option v-for="person in counterparties" :key="person.id" :value="person.id">{{ person.name }}</option>
-                    </select>
+                    <SelectField
+                        v-if="!['transfer', 'investment_buy', 'investment_sell', 'opening_balance'].includes(movement.type)"
+                        v-model="details.category_id"
+                        :options="[{ value: '', label: 'Senza categoria' }, ...categories.map((category) => ({ value: category.id, label: category.name }))]"
+                    />
+                    <SelectField
+                        v-model="details.counterparty_id"
+                        :options="[{ value: '', label: 'Nessuna controparte' }, ...counterparties.map((person) => ({ value: person.id, label: person.name }))]"
+                    />
                     <input v-model="details.tags" class="field" placeholder="Tag separati da virgola" />
                     <textarea v-model="details.notes" rows="3" class="field" />
                     <InputError :message="details.errors.description || details.errors.category_id" />
                     <button class="btn-secondary" :disabled="details.processing">Salva dettagli</button>
                 </form>
+
+                <div v-if="movement.is_trade && !movement.voided" class="panel p-6 text-sm text-stone-600 dark:text-stone-300">
+                    È un'operazione su titoli. Si annulla dalla pagina
+                    <Link :href="route('investments.index')" class="text-teal-800 underline dark:text-teal-300">Investimenti</Link>, così quantità e costo medio restano coerenti.
+                </div>
 
                 <form v-if="movement.can_void" class="panel space-y-3 p-6" @submit.prevent="cancel">
                     <h2 class="font-display text-xl">Annulla</h2>

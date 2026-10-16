@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import InputError from '@/Components/InputError.vue';
 import { CategoryOption } from '@/types/finance';
@@ -46,12 +47,11 @@ function submit(): void {
         <div class="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
             <form class="panel space-y-3 p-6" @submit.prevent="submit">
                 <h2 class="font-display text-xl">Budget mensile</h2>
-                <select v-model="form.category_id" class="field" required>
-                    <option value="">Categoria di spesa</option>
-                    <option v-for="category in categories" :key="category.id" :value="category.id">
-                        {{ category.parent_id ? '– ' : '' }}{{ category.name }}
-                    </option>
-                </select>
+                <SelectField
+                    v-model="form.category_id"
+                    required
+                    :options="[{ value: '', label: 'Categoria di spesa' }, ...categories.map((category) => ({ value: category.id, label: `${category.parent_id ? '– ' : ''}${category.name}` }))]"
+                />
                 <input v-model="form.amount" class="field" placeholder="120,00" required />
                 <InputError :message="form.errors.category_id || form.errors.amount" />
                 <button class="btn-primary" :disabled="form.processing">Salva</button>

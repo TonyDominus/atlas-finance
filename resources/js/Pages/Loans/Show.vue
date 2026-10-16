@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import InputError from '@/Components/InputError.vue';
 import { formatDate } from '@/utils/date';
 import { AccountOption } from '@/types/finance';
@@ -107,10 +108,11 @@ function repay(): void {
                     <h2 class="font-display text-xl">Altra erogazione</h2>
                     <form class="mt-3 space-y-3" @submit.prevent="disburse">
                         <input v-model="extra.amount" class="field" placeholder="Importo" required />
-                        <select v-model="extra.account_id" class="field" required>
-                            <option value="">Conto</option>
-                            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-                        </select>
+                        <SelectField
+                            v-model="extra.account_id"
+                            required
+                            :options="[{ value: '', label: 'Conto' }, ...accounts.map((account) => ({ value: account.id, label: account.name }))]"
+                        />
                         <input v-model="extra.occurred_on" type="date" class="field" required />
                         <InputError :message="extra.errors.amount || extra.errors.account_id" />
                         <button class="btn-secondary" :disabled="extra.processing">Aggiungi</button>
@@ -124,21 +126,25 @@ function repay(): void {
                     <p class="mt-1 text-sm text-stone-500">Può arrivare su un conto diverso da quello dell'erogazione. Più prestiti si chiudono solo con allocazioni esplicite.</p>
                     <form class="mt-4 space-y-3" @submit.prevent="repay">
                         <div class="grid gap-3 sm:grid-cols-2">
-                            <select v-model="repayment.kind" class="field">
-                                <option value="cash">Denaro</option>
-                                <option value="compensation">Compensazione non monetaria</option>
-                            </select>
+                            <SelectField
+                                v-model="repayment.kind"
+                                :options="[
+                                    { value: 'cash', label: 'Denaro' },
+                                    { value: 'compensation', label: 'Compensazione non monetaria' },
+                                ]"
+                            />
                             <input v-model="repayment.occurred_on" type="date" class="field" required />
                         </div>
-                        <select v-if="repayment.kind === 'cash'" v-model="repayment.account_id" class="field">
-                            <option value="">Conto di incasso o pagamento</option>
-                            <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-                        </select>
+                        <SelectField
+                            v-if="repayment.kind === 'cash'"
+                            v-model="repayment.account_id"
+                            :options="[{ value: '', label: 'Conto di incasso o pagamento' }, ...accounts.map((account) => ({ value: account.id, label: account.name }))]"
+                        />
                         <div v-for="(row, index) in repayment.allocations" :key="index" class="grid gap-2 sm:grid-cols-3">
-                            <select v-model="row.loan_id" class="field">
-                                <option :value="loan.id">{{ loan.counterparty }}</option>
-                                <option v-for="other in sameDirection" :key="other.id" :value="other.id">{{ other.label }}</option>
-                            </select>
+                            <SelectField
+                                v-model="row.loan_id"
+                                :options="[{ value: loan.id, label: loan.counterparty }, ...sameDirection.map((other) => ({ value: other.id, label: other.label }))]"
+                            />
                             <input v-model="row.principal" class="field" placeholder="Capitale" />
                             <input v-model="row.interest" class="field" placeholder="Interessi" />
                         </div>

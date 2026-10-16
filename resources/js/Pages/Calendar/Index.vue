@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import EmptyState from '@/Components/EmptyState.vue';
 import { formatDate } from '@/utils/date';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -95,12 +96,12 @@ const forms = Object.fromEntries(props.items.map((item) => [item.id, formFor(ite
                             <Link :href="route('occurrences.realize', item.id)" method="post" as="button" class="btn-primary">Contabilizza</Link>
                             <Link :href="route('occurrences.skip', item.id)" method="post" as="button" class="btn-secondary">Salta</Link>
                             <form class="flex flex-wrap items-center gap-2" @submit.prevent="forms[item.id].post(route('occurrences.link', item.id))">
-                                <select v-model="forms[item.id].journal_entry_id" class="field mt-0 w-56">
-                                    <option value="">Collega un movimento</option>
-                                    <option v-for="movement in linkable" :key="movement.id" :value="movement.id">
-                                        {{ movement.description }} · {{ movement.amount }}
-                                    </option>
-                                </select>
+                                <SelectField
+                                    v-model="forms[item.id].journal_entry_id"
+                                    flush
+                                    class="w-56"
+                                    :options="[{ value: '', label: 'Collega un movimento' }, ...linkable.map((movement) => ({ value: movement.id, label: `${movement.description} · ${movement.amount}` }))]"
+                                />
                                 <button class="btn-secondary" :disabled="forms[item.id].processing">Collega</button>
                             </form>
                         </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import InputError from '@/Components/InputError.vue';
 import { CategoryOption, Option } from '@/types/finance';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -48,13 +49,11 @@ function submit(): void {
                 <h2 class="font-display text-xl">Nuova categoria</h2>
                 <input v-model="form.name" class="field" placeholder="Nome" required />
                 <InputError :message="form.errors.name" />
-                <select v-model="form.kind" class="field">
-                    <option v-for="kind in kinds" :key="kind.value" :value="kind.value">{{ kind.label }}</option>
-                </select>
-                <select v-model="form.parent_id" class="field">
-                    <option value="">Categoria principale</option>
-                    <option v-for="parent in parents" :key="parent.id" :value="parent.id">Sotto {{ parent.name }}</option>
-                </select>
+                <SelectField v-model="form.kind" :options="kinds" />
+                <SelectField
+                    v-model="form.parent_id"
+                    :options="[{ value: '', label: 'Categoria principale' }, ...parents.map((parent) => ({ value: parent.id, label: `Sotto ${parent.name}` }))]"
+                />
                 <InputError :message="form.errors.parent_id" />
                 <button class="btn-primary" :disabled="form.processing">Aggiungi</button>
             </form>

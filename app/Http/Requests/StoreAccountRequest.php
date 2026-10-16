@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Domain\Money\Currency;
 use App\Enums\AccountType;
+use App\Enums\WealthBucket;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,6 +24,7 @@ class StoreAccountRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'institution' => ['nullable', 'string', 'max:120'],
             'type' => ['required', Rule::enum(AccountType::class)],
+            'wealth_bucket' => ['nullable', Rule::enum(WealthBucket::class)],
             'currency' => ['required', 'string', Rule::in(Currency::codes())],
             'opening_balance' => ['required', 'string', 'max:32'],
             'opening_balance_on' => ['required', 'date'],

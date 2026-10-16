@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import SelectField from '@/Components/SelectField.vue';
 import InputError from '@/Components/InputError.vue';
 import { AccountOption, CounterpartyOption } from '@/types/finance';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -45,18 +46,23 @@ function submit(): void {
             </p>
             <div>
                 <label class="label" for="direction">Tipo</label>
-                <select id="direction" v-model="form.direction" class="field">
-                    <option value="given">Prestito concesso</option>
-                    <option value="received">Prestito ricevuto</option>
-                </select>
+                <SelectField
+                    id="direction"
+                    v-model="form.direction"
+                    :options="[
+                        { value: 'given', label: 'Prestito concesso' },
+                        { value: 'received', label: 'Prestito ricevuto' },
+                    ]"
+                />
             </div>
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="label" for="counterparty_id">Persona</label>
-                    <select id="counterparty_id" v-model="form.counterparty_id" class="field">
-                        <option value="">Nuova</option>
-                        <option v-for="person in counterparties" :key="person.id" :value="person.id">{{ person.name }}</option>
-                    </select>
+                    <SelectField
+                        id="counterparty_id"
+                        v-model="form.counterparty_id"
+                        :options="[{ value: '', label: 'Nuova' }, ...counterparties.map((person) => ({ value: person.id, label: person.name }))]"
+                    />
                 </div>
                 <div>
                     <label class="label" for="counterparty_name">Nome, se nuova</label>
@@ -72,10 +78,12 @@ function submit(): void {
                 </div>
                 <div>
                     <label class="label" for="account_id">Conto</label>
-                    <select id="account_id" v-model="form.account_id" class="field" required>
-                        <option value="">Seleziona</option>
-                        <option v-for="account in accounts" :key="account.id" :value="account.id">{{ account.name }}</option>
-                    </select>
+                    <SelectField
+                        id="account_id"
+                        v-model="form.account_id"
+                        required
+                        :options="[{ value: '', label: 'Seleziona' }, ...accounts.map((account) => ({ value: account.id, label: account.name }))]"
+                    />
                     <InputError class="mt-2" :message="form.errors.account_id" />
                 </div>
             </div>
